@@ -5,6 +5,16 @@ export function workerCode() {
         console.log("Worker Error: " + msg);
     }
 
+    function async(op: () => void) {
+        setTimeout(op, 0);
+    }
+
+    // function postImageBitmap(){
+    //     let img = canvas.transferToImageBitmap();
+    //     postMessage(img);
+    //     (ctx as OffscreenCanvasRenderingContext2D).drawImage(img, 0, 0);
+    // }
+
     let canvas: OffscreenCanvas;
     let ctx: OffscreenRenderingContext;
     let initialized = false;
@@ -50,7 +60,13 @@ export function workerCode() {
                 if (!(ctxMethod in ctx))
                     error("Unknown ctx method: " + ctxMethod);
                 try {
+                    // async(() => {
+                    //     (ctx as any)[ctxMethod](...ctxArgs);
+                    // });
                     (ctx as any)[ctxMethod](...ctxArgs);
+
+                    // postMessage(canvas.height);
+                    // postImageBitmap();
                 } catch (e) {
                     error("Error in ctx method: " + ctxMethod);
                     console.error(e)
@@ -96,27 +112,32 @@ export class WorkerCanvas {
 
 
     sendCommand(key: CanvasWorkerEventKey, args: any) {
-        (
-            async () => {
-                this._worker.postMessage({
-                    key: key,
-                    args: args,
-                })
-            }
-        )()
+        // (
+        //     async () => {
+        //         this._worker.postMessage({
+        //             key: key,
+        //             args: args,
+        //         })
+        //     }
+        // )()
+
+        this._worker.postMessage({
+            key: key,
+            args: args,
+        })
     }
 
-    protected postMessage(e: CanvasWorkerEvent, transfer?: Transferable[]) {
-        if (transfer !== undefined) {
-            (async () => {
-                this._worker.postMessage(e, transfer);
-            })()
-            return;
-        }
-        (async () => {
-            this._worker.postMessage(e);
-        })()
-    }
+    // protected postMessage(e: CanvasWorkerEvent, transfer?: Transferable[]) {
+    //     if (transfer !== undefined) {
+    //         (async () => {
+    //             this._worker.postMessage(e, transfer);
+    //         })()
+    //         return;
+    //     }
+    //     (async () => {
+    //         this._worker.postMessage(e);
+    //     })()
+    // }
 
     constructor(width: number, height: number, ctxId: string) {
         let canvas = document.createElement("canvas");

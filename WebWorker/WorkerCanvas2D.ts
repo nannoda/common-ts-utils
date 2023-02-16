@@ -86,6 +86,12 @@ export class WorkerCanvas2D extends WorkerCanvas {
         this.setCtxVar("globalAlpha", value);
     }
 
+    protected onResponse(e: MessageEvent) {
+        super.onResponse(e);
+        console.log("WorkerCanvas2D.onResponse: " + e.data);
+
+    }
+
 
     protected _globalCompositeOperation: GlobalCompositeOperation = "source-over";
 
@@ -286,6 +292,7 @@ export class WorkerCanvas2D extends WorkerCanvas {
     arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, anticlockwise?: boolean) {
         this.ctxOp("arc", [x, y, radius, startAngle, endAngle, anticlockwise])
     }
+
 
     constructor(width: number, height: number) {
         super(width, height, "2d");
