@@ -9,15 +9,38 @@ export function workerCode() {
         setTimeout(op, 0);
     }
 
-    // function postImageBitmap(){
-    //     let img = canvas.transferToImageBitmap();
-    //     postMessage(img);
-    //     (ctx as OffscreenCanvasRenderingContext2D).drawImage(img, 0, 0);
-    // }
+    function replyState(code: number) {
+        postMessage(code);
+    }
 
     let canvas: OffscreenCanvas;
     let ctx: OffscreenRenderingContext;
     let initialized = false;
+
+    function canvasOp(op: string, args: any[]) {
+        if (!(op in canvas)) {
+            error("Unknown canvas method: " + op);
+            return;
+        }
+        (canvas as any)[op](...args);
+    }
+
+    function ctxOp(op: string, args: any[]) {
+        if (!(op in ctx)) {
+            error("Unknown ctx method: " + op);
+            return;
+        }
+        (ctx as any)[op](...args);
+    }
+
+    function canvasVar(name: string, value: any) {
+        (canvas as any)[name] = value;
+    }
+
+    function ctxVar(name: string, value: any) {
+        (ctx as any)[name] = value;
+    }
+
     onmessage = function (e) {
         if (!e.data.key) {
             error("No key in message");
@@ -49,6 +72,8 @@ export function workerCode() {
                     error("Unknown canvas method: " + canvasMethod);
                 try {
                     (canvas as any)[canvasMethod](...canvasArgs);
+                    replyState(0);
+                    // console.log("Called canvas method: " + canvasMethod)
                 } catch (e) {
                     error("Error in canvas method: " + canvasMethod);
                     console.error(e)
@@ -60,13 +85,9 @@ export function workerCode() {
                 if (!(ctxMethod in ctx))
                     error("Unknown ctx method: " + ctxMethod);
                 try {
-                    // async(() => {
-                    //     (ctx as any)[ctxMethod](...ctxArgs);
-                    // });
                     (ctx as any)[ctxMethod](...ctxArgs);
-
-                    // postMessage(canvas.height);
-                    // postImageBitmap();
+                    replyState(0);
+                    // console.log("Called ctx method: " + ctxMethod)
                 } catch (e) {
                     error("Error in ctx method: " + ctxMethod);
                     console.error(e)
@@ -78,6 +99,8 @@ export function workerCode() {
                 if (!(canvasVar in canvas))
                     error("Unknown canvas var: " + canvasVar);
                 (canvas as any)[canvasVar] = canvasVarValue;
+                // console.log("Set canvas var: " + canvasVar + " to " + canvasVarValue)
+                replyState(0);
                 break;
             case "ctxVar":
                 let ctxVar = data.args[0];
@@ -85,10 +108,13 @@ export function workerCode() {
                 if (!(ctxVar in ctx))
                     error("Unknown ctx var: " + ctxVar);
                 (ctx as any)[ctxVar] = ctxVarValue;
+                // console.log("Set ctx var: " + ctxVar + " to " + ctxVarValue)
+                replyState(0);
                 break;
             default:
                 console.log("Unknown event key: " + data.key);
         }
+
     }
 }
 
@@ -106,25 +132,32 @@ export class WorkerCanvas {
     protected _width: number;
     protected _height: number;
 
-    protected onResponse(e: MessageEvent) {
+    protected requestQueue: CanvasWorkerEvent[] = [];
 
+    protected onResponse(e: MessageEvent) {
+        if (e.data === 0) {
+            this.requestQueue.shift();
+            if (this.requestQueue.length > 0) {
+                this._worker.postMessage(this.requestQueue[0]);
+            }
+        }
     }
 
-
     sendCommand(key: CanvasWorkerEventKey, args: any) {
-        // (
-        //     async () => {
-        //         this._worker.postMessage({
-        //             key: key,
-        //             args: args,
-        //         })
-        //     }
-        // )()
-
-        this._worker.postMessage({
+        this.requestQueue.push({
             key: key,
             args: args,
-        })
+        });
+        if (this.requestQueue.length === 1) {
+            this.postMessage(this.requestQueue[0]);
+        } else {
+            console.log("Request queue length: " + this.requestQueue.length)
+        }
+    }
+
+    postMessage(e: CanvasWorkerEvent, transfer: Transferable[] = []) {
+        console.log("Post message: " + e.key)
+        this._worker.postMessage(e, transfer);
     }
 
     // protected postMessage(e: CanvasWorkerEvent, transfer?: Transferable[]) {
@@ -148,17 +181,20 @@ export class WorkerCanvas {
             this.onResponse(e);
         }
         let workerCanvas = canvas.transferControlToOffscreen();
-        worker.postMessage(
+
+        this._canvas = canvas;
+        this._worker = worker;
+
+        this._width = width;
+        this._height = height;
+
+        this.postMessage(
             {
                 key: "init",
                 args: [workerCanvas, ctxId]
             },
             [workerCanvas]
         )
-        this._canvas = canvas;
-        this._worker = worker;
 
-        this._width = width;
-        this._height = height;
     }
 }

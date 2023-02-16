@@ -89,7 +89,6 @@ export class WorkerCanvas2D extends WorkerCanvas {
     protected onResponse(e: MessageEvent) {
         super.onResponse(e);
         console.log("WorkerCanvas2D.onResponse: " + e.data);
-
     }
 
 
