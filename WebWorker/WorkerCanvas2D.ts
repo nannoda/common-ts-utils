@@ -86,11 +86,6 @@ export class WorkerCanvas2D extends WorkerCanvas {
         this.setCtxVar("globalAlpha", value);
     }
 
-    protected onResponse(e: MessageEvent) {
-        super.onResponse(e);
-        console.log("WorkerCanvas2D.onResponse: " + e.data);
-    }
-
 
     protected _globalCompositeOperation: GlobalCompositeOperation = "source-over";
 
@@ -290,6 +285,38 @@ export class WorkerCanvas2D extends WorkerCanvas {
 
     arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, anticlockwise?: boolean) {
         this.ctxOp("arc", [x, y, radius, startAngle, endAngle, anticlockwise])
+    }
+
+    save() {
+        this.ctxOp("save", [])
+    }
+
+    restore() {
+        this.ctxOp("restore", [])
+    }
+
+    rotate(angle: number) {
+        this.ctxOp("rotate", [angle])
+    }
+
+    scale(x: number, y: number) {
+        this.ctxOp("scale", [x, y])
+    }
+
+    translate(x: number, y: number) {
+        this.ctxOp("translate", [x, y])
+    }
+
+    transform(a: number, b: number, c: number, d: number, e: number, f: number) {
+        this.ctxOp("transform", [a, b, c, d, e, f])
+    }
+
+    setTransform(a: number, b: number, c: number, d: number, e: number, f: number) {
+        this.ctxOp("setTransform", [a, b, c, d, e, f])
+    }
+
+    bezierCurveTo(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number) {
+        this.ctxOp("bezierCurveTo", [cp1x, cp1y, cp2x, cp2y, x, y])
     }
 
 

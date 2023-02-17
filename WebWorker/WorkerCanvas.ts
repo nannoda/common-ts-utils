@@ -151,26 +151,17 @@ export class WorkerCanvas {
         if (this.requestQueue.length === 1) {
             this.postMessage(this.requestQueue[0]);
         } else {
-            console.log("Request queue length: " + this.requestQueue.length)
+            // console.log("Request queue length: " + this.requestQueue.length)
         }
     }
 
     postMessage(e: CanvasWorkerEvent, transfer: Transferable[] = []) {
-        console.log("Post message: " + e.key)
-        this._worker.postMessage(e, transfer);
-    }
+        // console.log("Post message: " + e.key);
+        (async () => {
+            this._worker.postMessage(e, transfer);
+        })();
 
-    // protected postMessage(e: CanvasWorkerEvent, transfer?: Transferable[]) {
-    //     if (transfer !== undefined) {
-    //         (async () => {
-    //             this._worker.postMessage(e, transfer);
-    //         })()
-    //         return;
-    //     }
-    //     (async () => {
-    //         this._worker.postMessage(e);
-    //     })()
-    // }
+    }
 
     constructor(width: number, height: number, ctxId: string) {
         let canvas = document.createElement("canvas");
