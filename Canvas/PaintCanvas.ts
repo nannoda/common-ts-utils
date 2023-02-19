@@ -60,3 +60,7 @@ export function drawCircle(ctx: Context2D, x: number, y: number, radius: number)
     ctx.arc(x, y, radius, 0, 2 * Math.PI);
     ctx.stroke();
 }
+
+export function clearCanvas(canvas: HTMLCanvasElement | OffscreenCanvas) {
+    canvas.width = canvas.width;
+}
