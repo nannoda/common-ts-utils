@@ -39,7 +39,5 @@ export class Serializer {
             obj2[key] = obj[key];
         }
         return obj2;
-
     }
-
 }
