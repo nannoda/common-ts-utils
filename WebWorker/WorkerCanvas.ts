@@ -134,35 +134,6 @@ export class WorkerCanvas {
 
     protected requestQueue: CanvasWorkerEvent[] = [];
 
-    protected onResponse(e: MessageEvent) {
-        if (e.data === 0) {
-            this.requestQueue.shift();
-            if (this.requestQueue.length > 0) {
-                this._worker.postMessage(this.requestQueue[0]);
-            }
-        }
-    }
-
-    sendCommand(key: CanvasWorkerEventKey, args: any) {
-        this.requestQueue.push({
-            key: key,
-            args: args,
-        });
-        if (this.requestQueue.length === 1) {
-            this.postMessage(this.requestQueue[0]);
-        } else {
-            // console.log("Request queue length: " + this.requestQueue.length)
-        }
-    }
-
-    postMessage(e: CanvasWorkerEvent, transfer: Transferable[] = []) {
-        // console.log("Post message: " + e.key);
-        (async () => {
-            this._worker.postMessage(e, transfer);
-        })();
-
-    }
-
     constructor(width: number, height: number, ctxId: string) {
         let canvas = document.createElement("canvas");
         canvas.width = width;
@@ -187,5 +158,34 @@ export class WorkerCanvas {
             [workerCanvas]
         )
 
+    }
+
+    sendCommand(key: CanvasWorkerEventKey, args: any) {
+        this.requestQueue.push({
+            key: key,
+            args: args,
+        });
+        if (this.requestQueue.length === 1) {
+            this.postMessage(this.requestQueue[0]);
+        } else {
+            // console.log("Request queue length: " + this.requestQueue.length)
+        }
+    }
+
+    postMessage(e: CanvasWorkerEvent, transfer: Transferable[] = []) {
+        // console.log("Post message: " + e.key);
+        (async () => {
+            this._worker.postMessage(e, transfer);
+        })();
+
+    }
+
+    protected onResponse(e: MessageEvent) {
+        if (e.data === 0) {
+            this.requestQueue.shift();
+            if (this.requestQueue.length > 0) {
+                this._worker.postMessage(this.requestQueue[0]);
+            }
+        }
     }
 }

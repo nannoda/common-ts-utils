@@ -24,18 +24,18 @@ function sinRandom(seed: number): number {
 }
 
 export class SinRandom extends AbstractRandom {
-    private _seed: number;
-
-    set seed(seed: number) {
+    constructor(seed: number) {
+        super();
         this._seed = seed;
     }
+
+    private _seed: number;
 
     get seed() {
         return this._seed;
     }
 
-    constructor(seed: number) {
-        super();
+    set seed(seed: number) {
         this._seed = seed;
     }
 
@@ -52,20 +52,20 @@ export class SimpleFastCounterRandom extends AbstractRandom {
     private _c: number = 0;
     private _d: number = 0;
 
-    set seed(seed: number) {
-        this._a = seed;
-        this._b = seed + sinRandom(seed);
-        this._c = seed + sinRandom(seed + 1);
-        this._d = seed + sinRandom(seed + 2);
+    constructor(seed: number = 0) {
+        super();
+        this.seed = seed;
     }
 
     get seed() {
         return this._a;
     }
 
-    constructor(seed: number = 0) {
-        super();
-        this.seed = seed;
+    set seed(seed: number) {
+        this._a = seed;
+        this._b = seed + sinRandom(seed);
+        this._c = seed + sinRandom(seed + 1);
+        this._d = seed + sinRandom(seed + 2);
     }
 
     nextFloat(max: number, min: number = 0): number {

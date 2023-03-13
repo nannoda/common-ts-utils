@@ -58,30 +58,6 @@ export class Shortcut {
         this.callback = execute;
     }
 
-    matches(event: KeyboardEvent) {
-        if (event.key != this.key) {
-            return false;
-        }
-
-        if (event.ctrlKey != this.ctrlKey) {
-            return false;
-        }
-
-        if (event.shiftKey != this.shiftKey) {
-            return false;
-        }
-
-        if (event.metaKey != this.metaKey) {
-            return false;
-        }
-
-        if (event.altKey != this.altKey) {
-            return false;
-        }
-
-        return true;
-    }
-
     static fromString(shortcut: string, execute: () => void) {
         let ctrl = false;
         let shift = false;
@@ -115,6 +91,30 @@ export class Shortcut {
         }
 
         return new Shortcut(key, ctrl, shift, meta, alt, execute);
+    }
+
+    matches(event: KeyboardEvent) {
+        if (event.key != this.key) {
+            return false;
+        }
+
+        if (event.ctrlKey != this.ctrlKey) {
+            return false;
+        }
+
+        if (event.shiftKey != this.shiftKey) {
+            return false;
+        }
+
+        if (event.metaKey != this.metaKey) {
+            return false;
+        }
+
+        if (event.altKey != this.altKey) {
+            return false;
+        }
+
+        return true;
     }
 }
 

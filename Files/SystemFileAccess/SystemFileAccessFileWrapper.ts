@@ -10,6 +10,7 @@ export default class SystemFileAccessFileWrapper extends AbstractFileWrapper {
         super();
         this._handle = fileHandle;
     }
+
     get name(): string {
         return this._handle.name;
     }

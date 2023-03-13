@@ -1,4 +1,3 @@
-import {createWorkerFromFunction} from "./CreateWorker";
 import {WorkerCanvas} from "./WorkerCanvas";
 
 type CanvasWorkerEventKey = "init" | "canvasOp" | "ctxOp" | "canvasVar" | "ctxVar";
@@ -24,25 +23,70 @@ type ContextOpName =
 type off = OffscreenCanvasRenderingContext2D;
 
 export class WorkerCanvas2D extends WorkerCanvas {
+    constructor(width: number, height: number) {
+        super(width, height, "2d");
+        this.lineCap = "round";
+        this.lineJoin = "round";
+        this.lineWidth = 2;
+        this.strokeStyle = "#000000";
+    }
+
     protected _lineCap: CanvasLineCap = "butt";
+
+    get lineCap(): CanvasLineCap {
+        return this._lineCap;
+    }
+
+    set lineCap(value: CanvasLineCap) {
+        this._lineCap = value;
+        this.setCtxVar("lineCap", value)
+    }
+
     protected _lineJoin: CanvasLineJoin = "miter";
+
+    get lineJoin(): CanvasLineJoin {
+        return this._lineJoin;
+    }
+
+    set lineJoin(value: CanvasLineJoin) {
+        this._lineJoin = value;
+        this.setCtxVar("lineJoin", value)
+    }
+
     protected _lineWidth: number = 1;
+
+    get lineWidth(): number {
+        return this._lineWidth;
+    }
+
+    set lineWidth(value: number) {
+        this._lineWidth = value;
+        this.setCtxVar("lineWidth", value)
+    }
+
     protected _strokeStyle: string | CanvasGradient | CanvasPattern = "#000000";
+
+    get strokeStyle(): string | CanvasGradient | CanvasPattern {
+        return this._strokeStyle;
+    }
+
+    set strokeStyle(value: string | CanvasGradient | CanvasPattern) {
+        this._strokeStyle = value;
+        this.setCtxVar("strokeStyle", value)
+    }
+
     protected _fillStyle: string | CanvasGradient | CanvasPattern = "#000000";
 
+    get fillStyle(): string | CanvasGradient | CanvasPattern {
+        return this._fillStyle;
+    }
+
+    set fillStyle(value: string | CanvasGradient | CanvasPattern) {
+        this._fillStyle = value;
+        this.setCtxVar("fillStyle", value)
+    }
+
     protected _font: string = "10px sans-serif";
-
-    setCtxVar(name: ContextVarName, value: any) {
-        this.sendCommand("ctxVar", [name, value]);
-    }
-
-    ctxOp(name: ContextOpName, args: any[]) {
-        this.sendCommand("ctxOp", [name, args]);
-    }
-
-    setCanvasVar(name: "width" | "height", value: number) {
-        this.sendCommand("canvasVar", [name, value]);
-    }
 
     get font(): string {
         return this._font;
@@ -85,7 +129,6 @@ export class WorkerCanvas2D extends WorkerCanvas {
         this._globalAlpha = value;
         this.setCtxVar("globalAlpha", value);
     }
-
 
     protected _globalCompositeOperation: GlobalCompositeOperation = "source-over";
 
@@ -194,53 +237,20 @@ export class WorkerCanvas2D extends WorkerCanvas {
         this.setCanvasVar("height", value)
     }
 
-    get lineCap(): CanvasLineCap {
-        return this._lineCap;
-    }
-
-    set lineCap(value: CanvasLineCap) {
-        this._lineCap = value;
-        this.setCtxVar("lineCap", value)
-    }
-
-    get lineJoin(): CanvasLineJoin {
-        return this._lineJoin;
-    }
-
-    set lineJoin(value: CanvasLineJoin) {
-        this._lineJoin = value;
-        this.setCtxVar("lineJoin", value)
-    }
-
-    get lineWidth(): number {
-        return this._lineWidth;
-    }
-
-    set lineWidth(value: number) {
-        this._lineWidth = value;
-        this.setCtxVar("lineWidth", value)
-    }
-
-    get strokeStyle(): string | CanvasGradient | CanvasPattern {
-        return this._strokeStyle;
-    }
-
-    set strokeStyle(value: string | CanvasGradient | CanvasPattern) {
-        this._strokeStyle = value;
-        this.setCtxVar("strokeStyle", value)
-    }
-
-    get fillStyle(): string | CanvasGradient | CanvasPattern {
-        return this._fillStyle;
-    }
-
-    set fillStyle(value: string | CanvasGradient | CanvasPattern) {
-        this._fillStyle = value;
-        this.setCtxVar("fillStyle", value)
-    }
-
     get content(): CanvasImageSource {
         return this._canvas;
+    }
+
+    setCtxVar(name: ContextVarName, value: any) {
+        this.sendCommand("ctxVar", [name, value]);
+    }
+
+    ctxOp(name: ContextOpName, args: any[]) {
+        this.sendCommand("ctxOp", [name, args]);
+    }
+
+    setCanvasVar(name: "width" | "height", value: number) {
+        this.sendCommand("canvasVar", [name, value]);
     }
 
     moveTo(x: number, y: number) {
@@ -317,14 +327,5 @@ export class WorkerCanvas2D extends WorkerCanvas {
 
     bezierCurveTo(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number) {
         this.ctxOp("bezierCurveTo", [cp1x, cp1y, cp2x, cp2y, x, y])
-    }
-
-
-    constructor(width: number, height: number) {
-        super(width, height, "2d");
-        this.lineCap = "round";
-        this.lineJoin = "round";
-        this.lineWidth = 2;
-        this.strokeStyle = "#000000";
     }
 }
